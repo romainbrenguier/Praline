@@ -1,0 +1,60 @@
+int trans1 = 0;
+int energy1 = 2;
+int trans2 = 0;
+int energy2 = 2;
+int trans3 = 0;
+int energy3 = 2;
+//int time = 8;
+
+player p1 {trans1};
+player p2 {trans2};
+player p3 {trans3};
+
+move {
+  legal p1 0;
+  legal p2 0;
+  legal p3 0;
+  if (energy1 > 0) legal p1 1;
+  if (energy2 > 0) legal p2 1;
+  if (energy3 > 0) legal p3 1;
+  /* if (energyC > 0) */
+  /*   legal c 0 1; */
+  /* else legal c 0; */
+
+}
+
+update
+  {
+    int nb = 0;
+
+    if (action p1 > 0) 
+      { 
+	nb = nb+1; 
+	energy1 = energy1 - 1;
+      }
+
+    if (action p2 > 0) 
+      {
+	nb = nb+1;
+	energy2 = energy2 - 1;
+      }
+
+    if (action p3 > 0) 
+      {
+	nb = nb+1;
+	energy3 = energy3 - 1;
+      }
+    
+    if (nb < 2)
+      {
+	if (action p1 == 1)
+	  trans1 = trans1 + 1;
+	if (action p2 == 1)
+	  trans2 = trans2 + 1;
+	if (action p3 == 1)
+	  trans3 = trans3 + 1;
+	
+      }
+  }
+
+

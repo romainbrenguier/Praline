@@ -1,0 +1,305 @@
+##verbatim '#' = verbatim_code
+
+let verbatim_code x = texttt (Verbatim.verbatim (Verbatim.trim ['\n'] x))
+
+let praline = texttt "PRALINE"
+let ocaml = "OCaml"
+
+let cmd x = 
+  environment \"center\"
+    (T, command \"mbox\"
+       [T, environment \"minipage\" ~args: [T, text \"0.9\\\\textwidth\"] (T, x) T]
+       T) T
+
+let url x = command \"url\" [T,x] T
+
+let includegraphics ?(options=[]) x = 
+  let convert (option,size) = 
+    T, concat [option;"=";latex_of_size size]
+  in match options with
+    | [] -> command ~packages:[\"graphicx\",\"\"] \"includegraphics\" [T,x] T
+    | [opt] -> command ~packages:[\"graphicx\",\"\"] \"includegraphics\" ~opt:(convert opt) [T,x] T
+
+let doc = 
+  "{section "Compiling"}
+In order to build {praline} from the sources, 
+ ocaml ({url "http://caml.inria.fr/download.fr.html"})
+and the ocamlgraph library ({url "ocamlgraph.lri.fr/index.fr.html"}) are needed.
+The sources can be downloaded from the {praline} website {url "http://www.lsv.ens-cachan.fr/Software/praline/"}.
+Once the files have been extracted from the archive, the following command:
+{cmd "<#make main.native#>"}
+should build the main executable of the tool.
+To test that everything is working you can then type {cmd "<#make test#>"}, 
+this will generate some test file and run the tool on them.
+
+To edit game graph graphically you can consider using an editor for
+the GML language (see
+{url "http://en.wikipedia.org/wiki/Graph_Modelling_Language"}).
+
+{section "Basic Usage"}
+The basic way to use the tool is to give it a game file:
+{cmd "<#./main.native examples/example1.game#>"}
+This should write on the screen, the different payoffs of the equilibria 
+that the tool has found.
+It might also give you some warnings about unrecognized fields in the GML file,
+do not worry about them, these fields are of no use for our tool but they might 
+be used by graphical editors.
+
+
+{section "Input Files"}
+{subsection "The Arena"}
+The arena has to be given in the graphviz (.dot extension) or GML file format.
+There is no constraints on the labels of the states, but edges have to
+be labeled by actions separated by a comma ({texttt ","}), actions are
+strings.
+There is one action by player on every edge.
+Here is an example of edge in the graphviz format:
+{cmd "<# "3" -> "5" [label="n,y,w"];#>" }
+And the same example in the GML format:
+{cmd "<#edge [ source 3 target 5 label "n,y,w" ]#>"}
+
+{subsection "The Game File"}
+In the game file, there as to be the path to the file containing the
+arena, either in the dot or gml file format. This path should be given
+inside double quotes and after the keyword {texttt "arena"}.
+{cmd "<#arena "example1.gml"#>"}
+
+Optionnaly a starting configuration can be specified, only the
+solutions that start in this state will be kept.
+{cmd "<#start "2"#>"}
+
+Then the objectives for the players are given. 
+After the keyword {texttt "objective"}, there is the number of the
+player (starting at 1), then the type of objective: {texttt "reach"} for
+reachability, {texttt "safety"} for safety and {texttt "buchi"} for
+B\"uchi objectives, then the target states.
+Optinally for reachability and B\"uchi objectives this target states
+can be attributed different payoffs.
+For example:
+{cmd "<#objective 1 safety 6
+objective 2 reach 5 -> 2 ; 4 -> 1
+objective 3 buchi 4 -> 2 ; 6,5 -> 1
+#>"}"
+
+
+let example = 
+  let label_game = label () 
+  and label_arena = label ()
+  and label_product = label ()
+  and label_solution = label () in
+(* il y a des problemes avec subfloat *)
+  "{section "An Example"}
+
+We here describe in detail the fourth example given in the {texttt "examples"} directory.
+The game file {texttt "example4.game"} is represented in Fig.~{ref_ label_game}, 
+and its arena in Fig.~{ref_ label_arena}.
+
+{figure  ~label:label_game ~pos:[`H] ~caption:"file {texttt "example4.game"}" 
+(center (includegraphics "example4.pdf"))
+}
+{figure  ~label:label_arena ~pos:[`H] ~caption:"file {texttt "example4.gml"}" 
+(center (includegraphics ~options:["width",`Textwidth 0.5] "example4.png"))
+}
+
+The game start in the state labeled by 1. 
+Players take a decision, and if they chosed the same action, 
+the game go to the state 3 and then stays there,
+otherwise it goes to state 2, then come back to state 1.
+The goal for player 1 is to reach state 2 and for player 2 to reach state 3.
+
+{wrapfigure  ~label:label_product ~pos:`R ~width:(`Textwidth 0.3) ~caption:"product of the game with Buechi automata"
+(center (includegraphics ~options:["width",`Textwidth 0.3] "product.pdf"))
+}
+
+
+Launching our tool on the game file with the option {texttt "-i"} set to true:
+{cmd "<# ./main.native -i true examples/example4.game #>"}
+display the following on the screen:
+{cmd "<#
+file : examples/example4.game
+number of players : 2
+number of states : 3
+number of edges : 6
+payoff P1:1 P2:1 #>"}
+
+This gives some informations about the game, there are two players, three states in the arena, and six edges.
+It also says that there is a Nash equilibrium where the two players get a payoff of 1, that is they both win.
+
+To understand how {praline} works, you have to know that the algorithms only compute equilibria in Buechi games.
+So before doing anything, it transforms the reachability game of the example into a Buechi game, by computing
+the product of the arena with determistic Buechi automata that recognize the winning plays.
+To view this product launch the tool with the {texttt "-op"} option.
+{cmd "<# ./main.native -op true examples/example4.game #>"}
+The following gets written: {cmd "<# wrote examples/example4.game_product.dot #>"}
+This gives the path to a dot file that contains the product.
+This file looks like Fig.~{ref_ label_product}.
+The objectives are now for player one to visit infinitely often the states whose label has 1 for second digit,
+that is states: 110, 210, 310, and 311.
+For the second player it is to visit infinitely often the states whose label has 1 for third digit.
+The first digit represent the state of the original game.
+It is also possible to ask the tool what are the Buechi objectives in this new game with the option {texttt "-do"}:
+{cmd "<# ./main.native -do true examples/example4.game #>"}
+
+
+
+{praline} can then give the {emph "shape"} of the equilibrium in that new arena.
+The shape represents the path that is actually taken by the play if no player deviates.
+To obtain this shape, use the {texttt "-os"} option:
+{cmd "<#./main.native -os true examples/example4.game#>"}
+It writes a file represented in Fig.~{ref_ label_solution }.
+It tells us that the solution goes first to state 2, then come back to 1 and then loops in state 3.
+In the end the objectives of both players are satisfied.
+
+{figure  ~label:label_solution ~pos:[`H] ~caption:"shape of the solution"
+(center (includegraphics ~options:["width",`Textwidth 1.0] "solution.pdf"))
+}
+
+"
+
+let generator =
+  let label_module = label () in
+  let label_blotto = label () in
+  "{section "Generating Games"}
+In order to generate games with a big arena we provide an {ocaml} functor that helps with this task.
+To use it, a basic knowledge of {ocaml} is helpfull.
+The functor is in the module {texttt "Generator"} of the {praline} distribution.
+The input of the functor is a module that describes the transition table and the payoffs of the players.
+From it the functor {texttt "Make"} provides a function that given an initial state, 
+generates the arena that contains all the accessible state, and the game file.
+The signature of the module is given in Fig.~{ref_ label_module}.
+{figure  ~label:label_module ~pos:[`H;`T;`P] ~caption:"signature of module {texttt "Generator"}"
+(center (includegraphics ~options:["width",`Textwidth 1.0] "ocamldoc.pdf"))
+}
+
+{subsection "Example of a Generated Game"}
+
+As an example we will try to model a Colonel Blotto game.
+The Colonel Blotto is a classical game, in which  
+two players have to distribute forces across $n$
+battlefields. Within each battlefield, the player that allocates the
+higher level of force wins.
+In our variant, the fight occurs only in one field at each turn, so
+that the decision of the players can depend on how many soldiers the
+opponent has used in the previous battles.
+The goal is to win as many battles as possible.
+The configuration of the game will be modelled by the following {ocaml} type
+
+{cmd "<#
+type state =
+ { 
+  field: int;
+  score: int * int; 
+  soldiers: int * int; 
+ }#>" }
+
+{texttt "field"} is the battlefield in which the battle currently takes place.
+{texttt "score"} is the counts how many battles have been won by each player.
+{texttt "soldiers"} is the number of remaining soldier for each player.
+
+The possible actions of the player are described in the module {texttt "Act"}
+{cmd "<#
+module Act = 
+ struct 
+  type t = Send of int | Wait
+  ...
+ end #>"}
+
+There are two players, we use the module that use integers for them.
+{cmd "<#
+module Player = Util.Int
+let players = [1;2]
+#>"}
+
+The actions are to send a given number of soldiers at each turn, unless the game 
+has ended in which cases they can only wait.
+To generate the module move, we use the functor provided by {praline}:
+{cmd "<# 
+module Move = Move.Make(Player)(Act)
+ #>"}
+
+
+Here is the function that gives the allowed moves:
+{cmd "<#
+let move state player = 
+  if state.field = 0 then [Act.Wait]
+  else 
+    let nb_sol = 
+      if player = 1
+      then fst state.soldiers
+      else snd state.soldiers
+    in 
+    let rec aux i = if i = 0 then [Act.Send 0]
+      else Act.Send i :: aux (i-1)
+    in aux nb_sol
+#>"}
+
+The transition function:
+{cmd "<#
+let tab state act = 
+  let action x = Move.get_action x act in
+  match action 1 , action 2 with
+    | Act.Send nb1, Act.Send nb2 ->
+      let field = state.field - 1 in
+      let soldiers = (fun (x,y) -> (x - nb1, y - nb2)) state.soldiers in
+      if nb1 > nb2 then 
+        let score = (fun (x,y) -> (x+1,y)) state.score in
+        { field = field; score = score; soldiers = soldiers}
+      else if nb2 > nb1 then 
+        let score = (fun (x,y) -> (x,y+1)) state.score in
+        { field = field; score = score; soldiers = soldiers}
+      else {state with soldiers = soldiers}
+    | _ , _ -> state
+#>"}
+
+and finally the payoff function:
+{cmd "<#
+let payoff player state =
+  if player = 1 then fst state.score
+  else snd state.score #>"}
+
+Once our input module is fully described, we give it to the {texttt "Make"} functor:
+{cmd "<#module Generated = Generator.Make(Blotto)#>"}
+
+And we can then generate a game from an initial configuration and output it to file:
+{cmd "<#
+let game = Generated.game {field=2; score=(0,0); soldiers=(2,2)} in
+Generated.Output.output "examples/blotto" game #>"}
+
+We can then compile it with ocamlbuild:
+{cmd "<#
+ocamlbuild -libs graph -cflags -I,+ocamlgraph \
+-lflags -I,+ocamlgraph examples/blotto.native -- 
+#>"}
+
+
+The resulting arena is given in Fig.~{ref_ label_blotto}.
+
+{figure  ~label:label_blotto ~pos:[`H] ~caption:"generated arena for Blotto"
+(center (includegraphics ~options:["width",`Textwidth 1.0] "blotto.pdf"))
+}
+
+"
+
+let options = 
+  let list = ["Displaying the payoffs:",
+	      "The option {texttt "-dp"} display the payoff of
+ all the solutions that can be found with the tool.";
+	      "Displaying informations:",
+	      "The option {texttt "-i"} displays some informations
+ about the game, like the number of states and edges.";
+	      "Shapes of the solutions:",
+	      "The options {texttt "-os"} and {texttt "-og"} allow to output a graph
+file containing the shapes of the solutions, the first one in the dot
+file format and the second in the GML file format."]
+  in 
+  let make (t1,t2) = "{paragraph t1} {t2}" (*pourquoi je peux pas appelé mon argument text?*)
+  in "{section "Command Line Options"} {concat (List.map make list)}"
+
+
+
+
+
+let main = emit (document ~title: "{praline} User Manual"
+		   ~options: [ `A4paper ]
+		   ~packages: ["hyperref",""]
+		   (concat [doc;example;newpage;generator;newpage;options]))

@@ -1,0 +1,44 @@
+int socket0 = 0;
+int socket1 = 0;
+
+int received1 = 0;
+int received2 = 0;
+
+int sending = 0;
+
+player client1 {received1};
+player client2 {received2};
+
+move { legal client1 0 1 2; legal client2 0 1 2;}
+
+update
+{
+  if (action client1 == 1 || action client1 == 2) 
+    { if (action client2 == 0)
+	if (socket0 == 0) socket0 = 1;
+	else socket1 = 1;
+      else if (action client2 == action client1)
+	if (socket0 == 0) { socket0 = 1; socket1 = 2;}
+	else {socket1 = 2;}
+      else 
+	if (socket0 == 0) { socket0 = 2; socket1 = 1;}
+	else {socket1 = 1;}
+    }
+  else if (action client2 > 0) 
+    if (socket0 == 0) socket0 = 2;
+    else socket1 = 2;
+ 
+
+  if (sending == 0)
+    if (socket0 == 1)
+      { received1 = 1; sending = 1; socket0 = 0; }
+    else if (socket0 == 2)
+      { received2 = 1; sending = 1; socket0 = 0; }
+    else sending = 1;
+  else
+    if (socket1 == 1)
+      { received1 = 1; sending = 0; socket1 = 0; }
+    else if (socket1 == 2)
+      { received2 = 1; sending = 0; socket1 = 0; }
+    else sending = 0;
+}

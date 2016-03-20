@@ -1,0 +1,106 @@
+\documentclass{article}
+\def\praline{\texttt{PRALINE}}
+\title{\praline~Users Manual}
+\date{}
+
+\begin{document}
+\maketitle
+\section{Compiling}
+To build \praline, ocaml, ocamlbuild and ocamlgraph are needed.
+Once you extracted the files from the archive, the following command:
+\begin{verbatim}
+make main.native
+\end{verbatim}
+should build the main executable of the tool.
+
+To edit game graph graphically you can consider using an editor for
+the GML language (see
+{http://en.wikipedia.org/wiki/Graph\_Modelling\_Language}).
+
+\section{Basic Usage}
+The basic way to use the tool is to give it a game file:
+\begin{verbatim}
+./main.native examples/example1.game
+\end{verbatim}
+This should write the solution for the game in separate files.
+
+\section{Input Files}
+
+\subsection{The Arena}
+The arena as to be given in the dot or gml file format.
+There is no constraints on the labels of the states, but edges have to
+be labeled by actions separated by a comma (\texttt{,}), actions are
+strings (avoid \texttt{\"} and \texttt{,} symbols), there is one action
+by player on every edge.
+Here is an example of edge in the graphviz format:
+\begin{verbatim}
+  "3" -> "5" [label="n,y,w"];
+\end{verbatim}
+Here an example in the GML format:
+\begin{verbatim}
+  edge [ source 1 target 2 label "1,0,0" ]
+\end{verbatim}
+
+
+\subsection{The Game File}
+In the game file, there as to be the path to the file containing the
+arena, either in the dot or gml file format. This path should be given
+in parentheses after the keyword \texttt{arena}.
+\begin{verbatim}
+arena "example1.gml"
+\end{verbatim}
+
+Optionnaly a starting configuration can be specified, only the
+solutions that start in this state will be kept.
+\begin{verbatim}
+start "2"
+\end{verbatim}
+
+Then the objectives for the players are given. 
+After the keyword \texttt{objective}, there is the number of the
+player (starting at 1), then the type of objective: \texttt{reach} for
+reachability, \texttt{safety} for safety and \texttt{buchi} for
+B\"uchi objectives, then the target states.
+Optinally for reachability and B\"uchi objectives this target states
+can be attributed different payoffs.
+For example:
+\begin{verbatim}
+objective 1 safety 6
+objective 2 reach 5 -> 2 ; 4 -> 1
+objective 3 buchi 4 -> 2 ; 6,5 -> 1
+\end{verbatim}
+
+\section{Options}
+
+\paragraph{Displaying the payoff:}
+The option \texttt{-dp} display the payoff of all the solutions that
+can be found with the tool.
+
+\paragraph{Displaying informations:}
+The option \texttt{-i} displays some informations about the game, like
+the number of states and edges.
+
+\paragraph{Shapes of the solutions:}
+The options \texttt{-os} and \texttt{-og} allow to output a graph
+file containing the shapes of the solutions, the first one in the dot
+file format and the second in the GML file format.
+
+\paragraph{Computing the suspects:}
+\texttt{-susp}
+
+\paragraph{Constructing the strategies:}
+\texttt{-ost}
+
+\paragraph{Constructing the product:}
+\texttt{-op}
+
+\paragraph{Displaying the objectives:}
+\texttt{-do}
+
+\paragraph{Computing the repellors:}
+\texttt{-or}
+
+\paragraph{Constraints on the payoff:}
+\texttt{-c player min\_payoff} add a constraint on the payoff
+
+\end{document}

@@ -1,0 +1,26 @@
+int trans1 = 0;
+int energy1 = 1;
+int trans2 = 0;
+int energy2 = 1;
+
+player p1 {trans1};
+player p2 {trans2};
+
+move {
+  legal p1 0;
+  legal p2 0;
+  if (energy1 > 0) legal p1 1;
+  if (energy2 > 0) legal p2 1;
+}
+
+update {
+  if (action p1 == 1)  
+    energy1 = energy1 - 1;
+  if (action p2 == 1)
+    energy2 = energy2 - 1;
+
+  if (action p1 == 1 && action p2 == 0)
+    trans1 = trans1 + 1;
+  if (action p1 == 0 && action p2 == 1)
+    trans2 = trans2 + 1;
+}

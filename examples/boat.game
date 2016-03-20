@@ -1,0 +1,56 @@
+int pos1 = 1;
+int pos2 = 1;
+int sink1 = 0;
+int sink2 = 0;
+int arrived1 = 0;
+int arrived2 = 0;
+
+player boat1 {1 + arrived1 - sink1};
+player boat2 {1 + arrived2 - sink2};
+player env { sink1 + sink2 };
+
+move {
+  if (sink1 == 1) legal boat1 0;
+  else {
+    if (pos1 == 1) {legal boat1 1 2; }
+    if (pos1 == 2) {legal boat1 2 3 4;}
+    if (pos1 == 3) {legal boat1 3 5 6;}
+    if (pos1 == 4) {legal boat1 4 5 6;}
+    if (pos1 == 5) {legal boat1 5 7;}
+    if (pos1 == 6) {legal boat1 6 7;}
+    if (pos1 == 7) {legal boat1 7 1;}
+  }
+
+  if (sink2 == 1) legal boat2 0;
+  else {
+    if (pos2 == 1) {legal boat2 1 7; }
+    if (pos2 == 2) {legal boat2 2 1;}
+    if (pos2 == 3) {legal boat2 3 2;}
+    if (pos2 == 4) {legal boat2 4 2;}
+    if (pos2 == 5) {legal boat2 5 4 3;}
+    if (pos2 == 6) {legal boat2 6 4 3;}
+    if (pos2 == 7) {legal boat2 5 6;}
+
+  }
+
+  legal env 0;
+
+}
+
+update
+  {
+
+    arrived1 = 0;
+    arrived2 = 0;
+
+    if ((pos1 == action boat2 && pos1 != 1) || (pos2 == action boat1 && pos2 != 1) || (action boat1 == action boat2 && action boat1 != 1) )
+      { sink1 = 1; sink2 = 1;}
+
+    if (pos1 != 1 && action boat1 == 1) {pos1 = 1; arrived1 = 1;}
+    else pos1 = action boat1;
+
+    if (pos2 != 1 && action boat2 == 1) {pos2 = 1; arrived2 = 1;}
+    else pos2 = action boat2;
+
+
+  }

@@ -1,0 +1,45 @@
+int pos1 = 0;
+int pos2 = 1;
+int collision = 0;
+int arrived1 = 0;
+int arrived2 = 0;
+
+player train1 {arrived1};
+player train2 {arrived2};
+player env {collision};
+
+move {
+  legal train1 0;
+  if (collision == 0) legal train1 1;
+  legal train2 0;
+  if (collision == 0) legal train2 1;
+  legal env 0;
+  legal env 1;
+  legal env 2; 
+}
+
+update
+  {
+
+    arrived1 = 0;
+    arrived2 = 0;
+
+    if (action train1 == 1 && not action env == 1) 
+      { 
+	if (pos1 == 5) {pos1 = 0; arrived1 = 1;}
+	else pos1 = pos1 +1 ;
+      }
+
+    if (action train2 == 1 && not action env == 2) 
+      {
+	if (pos2 == 5) {pos2 = 0; arrived2 = 1;}
+	else pos2 = pos2 +1 ;
+
+      }
+
+    if (pos1 == pos2)
+      collision = 1;
+
+  }
+
+

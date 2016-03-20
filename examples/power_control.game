@@ -1,0 +1,81 @@
+int pow1 = 0;
+int pow2 = 0;
+int pow3 = 0;
+/* int pow4 = 0; */
+/* int pow5 = 0;  */
+/* int pow6 = 0;  */
+
+player p1
+{ 
+  1000 * (1 - exp
+	  ( -0.5 * pow1 / (pow2 + pow3 /*+ pow4 + pow5 + pow6*/  + 1)))
+    / (pow1 + 1)
+};
+
+player p2
+{ 
+  1000 * (1 - exp
+	  ( -0.5 * pow2 / (pow1 + pow3 /*+ pow4 + pow5 + pow6*/  + 1)))
+    / (pow2 + 1)
+};
+
+player p3
+{ 
+  1000 * (1 - exp
+	  ( -0.5 * pow3 / (pow2 + pow1 /*+ pow4 + pow5 + pow6*/  + 1)))
+    / (pow3 + 1)
+};
+
+/*
+player p4
+{ 
+  1000 * (1 - exp
+	  ( -0.5 * pow4 / (pow2 + pow3 + pow1 + pow5 + pow6  + 1)))
+    / (pow4 + 1)
+};
+
+player p5
+{ 
+  1000 * (1 - exp
+	  ( -0.5 * pow5 / (pow2 + pow3 + pow4 + pow1 + pow6 + 1)))
+    / (pow5 + 1)
+};
+
+player p6
+{ 
+  1000 * (1 - exp
+	  ( -0.5 * pow6 / (pow2 + pow3 + pow4 + pow5 + pow1 + 1)))
+    / (pow6 + 1)
+};
+  
+*/
+
+move{
+  int levelMax = 4;
+
+  legal p1 0;
+  legal p2 0;
+  legal p3 0;
+  // legal p4 0;
+  // legal p5 0;
+  // legal p6 0;
+  
+  if (pow1 < levelMax) legal p1 1 ;
+  if (pow2 < levelMax) legal p2 1 ;
+  if (pow3 < levelMax) legal p3 1 ;
+  // if (pow4 < levelMax) legal p4 1 ;
+  // if (pow5 < levelMax) legal p5 1 ;
+  // if (pow6 < levelMax) legal p6 1 ;
+
+}
+
+update{
+  if ( action p1 == 1 ) pow1 = pow1 + 1;
+  if ( action p2 == 1 ) pow2 = pow2 + 1;
+  if ( action p3 == 1 ) pow3 = pow3 + 1;
+  //  if ( action p4 == 1 ) pow4 = pow4 + 1;
+  // if ( action p5 == 1 ) pow5 = pow5 + 1;
+  // if ( action p6 == 1 ) pow6 = pow6 + 1;
+}
+
+
