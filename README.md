@@ -3,12 +3,15 @@ Installation
 
 To build PRALINE, ocaml (http://caml.inria.fr/), ocamlbuild
 (http://brion.inria.fr/gallium/index.php/Ocamlbuild) and ocamlgraph
-(ocamlgraph.lri.fr/index.fr.html) are needed. Once the files have been
-extracted from the archive, the following command:
+(ocamlgraph.lri.fr/index.fr.html) are needed. On Ubuntu systems they
+can be installed using `apt` or `opam`.
 
-make
+After cloning this git repository on your computer, go to the Praline
+directory, and run:
 
-should build the main executable of the tool.
+> make
+
+This should build the main executable of the tool.
 
 Basic Usage
 ===========
