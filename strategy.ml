@@ -169,10 +169,12 @@ struct
   module Payoff = Payoff.Make(G.A.M.Player)
 
   module Dij = Graph.Path.Dijkstra(G.A.G)
-    (struct type t = int 
+      (struct
+            type t = int
+            type edge = G.A.G.E.t
 	    type label = G.A.G.E.label
-	    let weight x = 1
-	    let compare = compare
+            let weight x = 1
+            let compare = compare
 	    let add x y = x + y
 	    let zero = 0 end)
 
