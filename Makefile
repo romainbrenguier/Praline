@@ -1,5 +1,5 @@
 main.native: *.ml *.mli *.mly *.mll
-	ocamlbuild -libs str,graph,unix -cflags -I,+ocamlgraph -lflags -I,+ocamlgraph  main.native
+	ocamlbuild -use-ocamlfind main.native
 	mv main.native praline
 
 main.byte: *.ml *.mli *.mly *.mll
